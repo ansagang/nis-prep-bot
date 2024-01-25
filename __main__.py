@@ -9,9 +9,7 @@ from middleware import CheckAdmin
 from handlers import setup_message_routers
 from callbacks import setup_callback_routers
 from aiogram.enums import ParseMode
-
-async def on_startup(_):
-    print('Bot is online')
+from database import sqlite
 
 async def main():
     bot = Bot(token=os.getenv('TOKEN'), parse_mode=ParseMode.HTML)
@@ -25,9 +23,7 @@ async def main():
     dp.include_router(message_routers)
     dp.include_router(callback_routers)
 
-
-
-    await dp.start_polling(bot, skip_updates=True, on_startup=on_startup)
+    await dp.start_polling(bot, skip_updates=True, on_startup=sqlite.sql_start())
     bot.delete_webhook(drop_pending_updates=True)
 
 if __name__ == "__main__":
