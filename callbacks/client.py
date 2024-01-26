@@ -8,29 +8,60 @@ from database import sqlite
 
 router = Router()
 
-
-@router.callback_query(F.data == "tips")
+@router.callback_query(F.data == "materials")
 async def tips(query: types.CallbackQuery):
+    subjects = await sqlite.sql_get_materials_subjects()
+    text = []
+    callback = []
+    for subject in subjects:
+        text.append(subject[0])
+        callback.append('materials_'+subject[0])
+    text.append('« Назад')
+    callback.append('menu')
     pattern = {
         "caption": (
-            "<b>Советы</b>\n"
+            "<b>Материалы</b>\n"
             "\n"
+            "-Выберите предмет"
         ),
-        "reply_markup": inline_builder(text='« Назад', callback_data='menu')
+        "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
     }
     await query.message.edit_caption(**pattern)
     await query.answer()
 
-@router.callback_query(F.data == "materials")
+@router.callback_query(F.data.startswith('materials_'))
 async def tips(query: types.CallbackQuery):
+    materials = await sqlite.sql_get_materials(query.data.split('_')[1])
+    text = []
+    callback = []
+    for material in materials:
+        text.append(material[1])
+        callback.append('material_'+material[1])
+    text.append('« Назад')
+    callback.append('tests')
     pattern = {
         "caption": (
             "<b>Материалы</b>\n"
             "\n"
         ),
-        "reply_markup": inline_builder(text='« Назад', callback_data='menu')
+        "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
     }
     await query.message.edit_caption(**pattern)
+    await query.answer()
+
+@router.callback_query(F.data.startswith('material_'))
+async def tips(query: types.CallbackQuery):
+    material = await sqlite.sql_get_material(query.data.replace('material_', ''))
+    pattern = {
+        "caption": (
+            "<b>"+material[1]+"</b>\n"
+            "\n"
+            "-"+material[2]
+        ),
+        "reply_markup": inline_builder(text='« Назад', callback_data='delete', sizes=1),
+        "photo": material[0]
+    }
+    await query.message.answer_photo(**pattern)
     await query.answer()
 
 @router.callback_query(F.data == "tests")
@@ -47,6 +78,7 @@ async def tips(query: types.CallbackQuery):
         "caption": (
             "<b>Пробники</b>\n"
             "\n"
+            "-Выберите предмет"
         ),
         "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
     }
@@ -61,7 +93,6 @@ async def tips(query: types.CallbackQuery):
     for test in tests:
         text.append(test[1])
         callback.append('test_'+test[1])
-    print(text, callback)
     text.append('« Назад')
     callback.append('tests')
     pattern = {
@@ -77,7 +108,6 @@ async def tips(query: types.CallbackQuery):
 @router.callback_query(F.data.startswith('test_'))
 async def tips(query: types.CallbackQuery):
     test = await sqlite.sql_get_test(query.data.replace('test_', ''))
-    print(test)
     pattern = {
         "caption": (
             "<b>"+test[1]+"</b>\n"

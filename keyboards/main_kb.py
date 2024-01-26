@@ -6,6 +6,6 @@ def inlineKb(isAdmin):
     else:
         return client_kb
 
-client_kb = inline_builder(text=["Советы", "Материалы", "Пробники"], callback_data=["tips", "materials", "tests"], sizes=3)
+client_kb = inline_builder(text=["Материалы", "Пробники"], callback_data=["materials", "tests"], sizes=2)
 
-admin_kb = inline_builder(text=["Советы", "Материалы", "Пробники", "Выложить данные", "Добавить данные"], callback_data=["tips", "materials", "tests", "post", "add"], sizes=[3, 2])
+admin_kb = inline_builder(text=["Материалы", "Пробники", "Выложить данные", "Добавить данные"], callback_data=["materials", "tests", "post", "add"], sizes=[2, 2])
