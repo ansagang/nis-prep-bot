@@ -34,6 +34,75 @@ class FMSquestion(StatesGroup):
     title = State()
     explanation = State()
 
+@router.callback_query(F.data == "delete_")
+async def post(query: types.CallbackQuery):
+    pattern = {
+        "caption": (
+            "<b>Удалить</b>\n"
+            "\n"
+            "-Выберите данные которые вы хотите удалить"
+        ),
+        "reply_markup": inline_builder(text=['Удалить тест', 'Удалить материал', '« Назад'], callback_data=['delete_tests', 'delete_materials', 'menu'])
+    }
+    await query.message.edit_caption(**pattern)
+    await query.answer()
+
+@router.callback_query(F.data.startswith('delete_material-'))
+async def add(query: types.CallbackQuery):
+    await sqlite.sql_delete_material(query.data.split('-')[1])
+    caption = (
+        "<b>Материал был успешно удален</b>"
+    )
+    await query.message.edit_caption(caption=caption, reply_markup=inline_builder(text=['« Назад'], callback_data=['delete_materials']))
+    await query.answer()
+
+@router.callback_query(F.data.startswith('delete_test-'))
+async def add(query: types.CallbackQuery):
+    await sqlite.sql_delete_test(query.data.split('-')[1])
+    caption = (
+        "<b>Тест был успешно удален</b>"
+    )
+    await query.message.edit_caption(caption=caption, reply_markup=inline_builder(text=['« Назад'], callback_data=['delete_tests']))
+    await query.answer()
+
+@router.callback_query(F.data.startswith("delete"))
+async def post(query: types.CallbackQuery):
+    pattern = {}
+    if query.data == 'delete_tests':
+        tests = await sqlite.sql_get_tests(None)
+        text = []
+        callback = []
+        pattern['caption'] = (
+            "<b>Удалить тест</b>\n"
+            "\n"
+            "-Выберите тест для удаления"
+        )
+        for test in tests:
+            text.append(test[1])
+            callback.append('delete_test-'+test[1])
+        text.append('« Назад')
+        callback.append('delete_')
+        pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
+        await query.message.edit_caption(**pattern)
+        await query.answer()
+    if query.data == 'delete_materials':
+        materials = await sqlite.sql_get_materials(None)
+        text = []
+        callback = []
+        pattern['caption'] = (
+            "<b>Удалить материал</b>\n"
+            "\n"
+            "-Выберите материал для удаления"
+        )
+        for material in materials:
+            text.append(material[1])
+            callback.append('delete_material-'+material[1])
+        text.append('« Назад')
+        callback.append('delete_')
+        pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
+        await query.message.edit_caption(**pattern)
+        await query.answer()
+
 @router.callback_query(F.data == "post")
 async def post(query: types.CallbackQuery):
     pattern = {
@@ -159,11 +228,11 @@ async def add(message: types.Message, state: FSMContext):
     def correct(option):
         if option == 'A':
             return 0
-        if option == 'B':
+        elif option == 'B':
             return 1
-        if option == 'C':
+        elif option == 'C':
             return 2
-        if option == 'D':
+        elif option == 'D':
             return 3
     await message.bot.send_poll(chat_id=config.channel, question='Ответ: ', options=['A', 'B', 'C', 'D'], allows_multiple_answers=False, correct_option_id=correct(data['answer']), explanation=data['explanation'], type='quiz')
     await state.clear()
@@ -263,4 +332,3 @@ async def add(query: types.CallbackQuery, state: FSMContext):
         return
     await state.clear()
     await query.message.answer('Отмена добавления данных')
-

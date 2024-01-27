@@ -1,8 +1,11 @@
 from aiogram import types, Router, F
-from aiogram.filters import Command, or_f
+from aiogram.filters import Command, or_f, and_f
 from keyboards import main_kb
 from utils import get_project_root
 from keyboards import inline_builder
+import config
+import json, string
+from filters import IsGroup, IsCussWord
 
 router = Router()
 
@@ -48,3 +51,7 @@ async def info_cmd(message: types.Message):
     )
     await message.bot.send_photo(chat_id=message.from_user.id, photo=types.FSInputFile(path=filename), caption=caption, reply_markup=inline_builder(text='« Назад', callback_data='delete'))
     await message.delete()
+
+@router.message(and_f(IsGroup(), IsCussWord()))
+async def words_filter(message: types.Message):
+    await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)

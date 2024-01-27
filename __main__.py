@@ -4,6 +4,7 @@ import os
 from dotenv import find_dotenv, load_dotenv
 from aiogram import Bot, Dispatcher
 load_dotenv(find_dotenv())
+import config
 
 from middleware import CheckAdmin
 from handlers import setup_message_routers
@@ -22,6 +23,8 @@ async def main():
     callback_routers = setup_callback_routers()
     dp.include_router(message_routers)
     dp.include_router(callback_routers)
+    getChat = await bot.get_chat(chat_id=config.channel)
+    config.linked_chat_id = getChat.linked_chat_id
 
     await dp.start_polling(bot, skip_updates=True, on_startup=sqlite.sql_start())
     bot.delete_webhook(drop_pending_updates=True)

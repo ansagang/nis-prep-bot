@@ -51,3 +51,11 @@ async def sql_get_test(data):
 async def sql_get_material(data):
     material = cur.execute('SELECT * FROM materials WHERE name == ?', (data, )).fetchone()
     return material
+
+async def sql_delete_test(data):
+    cur.execute('DELETE FROM tests WHERE name == ?', (data, ))
+    base.commit()
+
+async def sql_delete_material(data):
+    cur.execute('DELETE FROM materials WHERE name == ?', (data, ))
+    base.commit()
