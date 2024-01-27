@@ -3,7 +3,7 @@ from aiogram.fsm.state import StatesGroup, State
 from database import sqlite
 from aiogram import Dispatcher, types
 from aiogram import Router, F
-from filters import IsAdmin
+from filters import IsAdmin, IsGroup
 from aiogram.filters import and_f, or_f, Command
 from utils import get_project_root
 from database import sqlite
@@ -213,29 +213,37 @@ async def add(message: types.Message, state: FSMContext):
     await message.answer('Теперь введите объяснение', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMSquestion.explanation)
 
-@router.message(and_f(IsAdmin(), F.content_type == 'text', FMSquestion.explanation))
-async def add(message: types.Message, state: FSMContext):
+@router.message(or_f(IsGroup(), and_f(IsAdmin(), F.content_type == 'text', FMSquestion.explanation)))
+async def add(message: types.Message, state: FSMContext):    
     photo = get_project_root('assets/logo.png')
-    await state.update_data(explanation=message.text)
-    data = await state.get_data()
-    await message.answer_photo(photo=types.FSInputFile(path=photo) ,caption='Вопрос был успешно выложен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
-    caption = (
-        data['title']+"\n"
-        "\n"
-        "#вопросы #"+data['subject']
-    )
-    await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
-    def correct(option):
-        if option == 'A':
-            return 0
-        elif option == 'B':
-            return 1
-        elif option == 'C':
-            return 2
-        elif option == 'D':
-            return 3
-    await message.bot.send_poll(chat_id=config.channel, question='Ответ: ', options=['A', 'B', 'C', 'D'], allows_multiple_answers=False, correct_option_id=correct(data['answer']), explanation=data['explanation'], type='quiz')
-    await state.clear()
+    global data
+    if message.chat.type in ['supergroup'] and message.from_user.id == 777000:
+        try:
+            caption = (
+                "Ответ: "+data['answer']+"\n"
+                "\n"
+                ""+data['explanation']
+            )
+            await message.reply(caption)
+            del data['answer']
+            del data['explanation']
+            await state.clear()
+        except KeyError:
+            await state.clear()
+        except NameError:
+            await state.clear()
+    else:
+        await message.answer_photo(photo=types.FSInputFile(path=photo) ,caption='Вопрос был успешно выложен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
+        await state.update_data(explanation=message.text)
+        data = await state.get_data()
+        caption = (
+            data['title']+"\n"
+            "\n"
+            "#вопросы #"+data['subject']
+        )
+        await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
+    # await state.update_data(end=True)
+    # print(data)
 
 @router.message(and_f(IsAdmin(), F.content_type == 'photo', FMStips.photo))
 async def add(message: types.Message, state: FSMContext):
@@ -246,7 +254,7 @@ async def add(message: types.Message, state: FSMContext):
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMStips.content))
 async def add(message: types.Message, state: FSMContext):
     photo = get_project_root('assets/logo.png')
-    await state.update_data(content=message.text)
+    await state.update_data(content=message.html_text)
     data = await state.get_data()
     await message.answer_photo(photo=types.FSInputFile(path=photo) ,caption='Совет был успешно выложен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
     caption = (

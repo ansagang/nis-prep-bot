@@ -4,4 +4,4 @@ import config
 
 class IsGroup(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
-        return message.chat.id == config.linked_chat_id
+        return message.chat.type in ['supergroup'] and message.from_user.id == 777000

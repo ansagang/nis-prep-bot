@@ -52,6 +52,11 @@ async def info_cmd(message: types.Message):
     await message.bot.send_photo(chat_id=message.from_user.id, photo=types.FSInputFile(path=filename), caption=caption, reply_markup=inline_builder(text='« Назад', callback_data='delete'))
     await message.delete()
 
-@router.message(and_f(IsGroup(), IsCussWord()))
-async def words_filter(message: types.Message):
-    await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+# @router.message(and_f(IsGroup()))
+# async def words_filter(message: types.Message):
+#     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+    
+# @router.message(IsGroup())
+# async def afw(message: types.Message):
+#     print(message)
+#     await message.reply('aa')
