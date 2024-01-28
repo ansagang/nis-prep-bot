@@ -56,38 +56,40 @@ async def info_cmd(message: types.Message):
 async def random_test(message: types.Message):
     test = await sqlite.sql_random_test()
     pattern = {}
+    pattern['reply_markup']: inline_builder(text='« Назад', callback_data='delete', sizes=1)
     if test:
         pattern['caption'] = (
             "<b>"+test[1]+"</b>\n"
             "\n"
             "📄 "+test[2]
         )
-        pattern['reply_markup']: inline_builder(text='« Назад', callback_data='delete', sizes=1)
         pattern['document']: test[0]
+        await message.answer_document(**pattern)
     else:
-        pattern['caption'] = (
+        pattern['text'] = (
             "<b>Нету тестов</b>"
         )
-    await message.bot.send_document(**pattern)
+        await message.answer(**pattern)
     await message.delete()
 
 @router.message(Command('random_material'))
 async def random_material(message: types.Message):
     material = await sqlite.sql_random_material()
     pattern = {}
+    pattern['reply_markup']: inline_builder(text='« Назад', callback_data='delete', sizes=1)
     if material:
         pattern['caption'] = (
             "<b>"+material[1]+"</b>\n"
             "\n"
             "📚 "+material[2]
         ),
-        pattern['reply_markup']: inline_builder(text='« Назад', callback_data='delete', sizes=1)
         pattern['photo']: material[0]
+        await message.photo(**pattern)
     else:
-        pattern['caption'] = (
+        pattern['text'] = (
             "<b>Нету материала</b>"
         )
-    await message.bot.send_document(**pattern)
+        await message.answer(**pattern)
     await message.delete()
 
 # @router.message(and_f(IsGroup(), isCussword()))
