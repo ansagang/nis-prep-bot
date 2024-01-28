@@ -265,7 +265,7 @@ async def add_tips_content(message: types.Message, state: FSMContext):
     await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
     await state.clear()
 
-@router.callback_query(and_f(IsAdmin, F.data == "add"))
+@router.callback_query(and_f(IsAdmin(), F.data == "add"))
 async def add(query: types.CallbackQuery):
     pattern = {
         "caption": (
