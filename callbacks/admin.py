@@ -123,7 +123,7 @@ async def post(query: types.CallbackQuery):
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith('post_test-')))
 async def post_test(query: types.CallbackQuery):
-    test = await sqlite.sql_get_test(query.data.split('-')[1])
+    test = await sqlite.sql_get_test(query.data.split(sep='-', maxsplit=1)[1])
     caption = (
         "<b>"+test[1]+"</b>\n"
         "\n"
@@ -135,7 +135,7 @@ async def post_test(query: types.CallbackQuery):
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith('post_material-')))
 async def post_material(query: types.CallbackQuery):
-    material = await sqlite.sql_get_material(query.data.split('-')[1])
+    material = await sqlite.sql_get_material(query.data.split(sep='-', maxsplit=1)[1])
     caption = (
         "<b>"+material[1]+"</b>\n"
         "\n"
