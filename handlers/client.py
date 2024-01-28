@@ -108,4 +108,5 @@ async def react(message: types.Message):
     emojis = ["👍", "❤️", "🔥", "👏", "💯"]
     react = types.ReactionTypeEmoji(emoji=choice(emojis))
     await asyncio.sleep(5)
-    await message.react([react])
+    a = await message.react([react])
+    print(message, a)
