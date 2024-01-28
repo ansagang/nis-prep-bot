@@ -197,7 +197,7 @@ async def add(message: types.Message, state: FSMContext):
 
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSquestion.title))
 async def add(message: types.Message, state: FSMContext):
-    await state.update_data(title=message.text)
+    await state.update_data(title=message.html_text)
     await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMSquestion.subject)
 
@@ -209,7 +209,7 @@ async def add(message: types.Message, state: FSMContext):
 
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSquestion.answer))
 async def add(message: types.Message, state: FSMContext):
-    await state.update_data(answer=message.text)
+    await state.update_data(answer=message.html_text)
     await message.answer('Теперь введите объяснение', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMSquestion.explanation)
 
@@ -234,7 +234,7 @@ async def add(message: types.Message, state: FSMContext):
             await state.clear()
     else:
         await message.answer_photo(photo=types.FSInputFile(path=photo) ,caption='Вопрос был успешно выложен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
-        await state.update_data(explanation=message.text)
+        await state.update_data(explanation=message.html_text)
         data = await state.get_data()
         caption = (
             data['title']+"\n"
