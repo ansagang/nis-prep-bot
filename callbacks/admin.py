@@ -53,7 +53,7 @@ async def delete(query: types.CallbackQuery):
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith('delete_material-')))
 async def delete_material(query: types.CallbackQuery):
-    await sqlite.sql_delete_material(query.data.split('-')[1])
+    await sqlite.sql_delete_material(query.data.split(sep='-', maxsplit=1)[1])
     caption = (
         "<b>Материал был успешно удален</b>"
     )
@@ -62,7 +62,7 @@ async def delete_material(query: types.CallbackQuery):
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith('delete_test-')))
 async def delete_test(query: types.CallbackQuery):
-    await sqlite.sql_delete_test(query.data.split('-')[1])
+    await sqlite.sql_delete_test(query.data.split(sep='-', maxsplit=1)[1])
     caption = (
         "<b>Тест был успешно удален</b>"
     )
