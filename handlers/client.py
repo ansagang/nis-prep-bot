@@ -7,6 +7,8 @@ from keyboards import main_kb, inline_builder
 
 from utils import get_project_root
 
+from filters import IsChannel
+
 router = Router()
 
 @router.message(or_f(Command('start'), F.text == "Меню"))
@@ -56,8 +58,8 @@ async def info_cmd(message: types.Message):
 async def random_test(message: types.Message):
     test = await sqlite.sql_random_test()
     pattern = {}
-    pattern['reply_markup']: inline_builder(text='« Назад', callback_data='delete', sizes=1)
-    pattern['chat_id']: message.from_user.id
+    pattern['reply_markup'] = inline_builder(text='« Назад', callback_data='delete', sizes=1)
+    pattern['chat_id'] = message.from_user.id
     if test:
         pattern['caption'] = (
             "<b>"+test[1]+"</b>\n"
@@ -77,8 +79,8 @@ async def random_test(message: types.Message):
 async def random_material(message: types.Message):
     material = await sqlite.sql_random_material()
     pattern = {}
-    pattern['reply_markup']: inline_builder(text='« Назад', callback_data='delete', sizes=1)
-    pattern['chat_id']: message.from_user.id
+    pattern['reply_markup'] = inline_builder(text='« Назад', callback_data='delete', sizes=1)
+    pattern['chat_id'] = message.from_user.id
     if material:
         pattern['caption'] = (
             "<b>"+material[1]+"</b>\n"
