@@ -302,7 +302,7 @@ async def add_tests_file(message: types.Message, state: FSMContext):
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.name))
 async def add_tests_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
-    await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await message.answer('Теперь введите айди', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMStests.id)
 
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.id))
@@ -328,7 +328,7 @@ async def add_materials_photo(message: types.Message, state: FSMContext):
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.name))
 async def add_materials_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
-    await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await message.answer('Теперь введите айди', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMSmaterials.id)
 
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.id))

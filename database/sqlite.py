@@ -15,12 +15,12 @@ def sql_start():
 
 async def sql_add_tests(state):
     data = await state.get_data()
-    cur.execute('INSERT INTO tests VALUES (?, ?, ?)', tuple(data.values()))
+    cur.execute('INSERT INTO tests VALUES (?, ?, ?, ?)', tuple(data.values()))
     base.commit()
 
 async def sql_add_materials(state):
     data = await state.get_data()
-    cur.execute('INSERT INTO materials VALUES (?, ?, ?)', tuple(data.values()))
+    cur.execute('INSERT INTO materials VALUES (?, ?, ?, ?)', tuple(data.values()))
     base.commit()
 
 async def sql_get_tests(subject):
