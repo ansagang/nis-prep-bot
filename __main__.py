@@ -27,7 +27,7 @@ async def main():
     config.linked_chat_id = getChat.linked_chat_id
 
     await dp.start_polling(bot, skip_updates=True, on_startup=sqlite.sql_start())
-    bot.delete_webhook(drop_pending_updates=True)
+    await bot.delete_webhook(drop_pending_updates=True)
 
 if __name__ == "__main__":
     asyncio.run(main())

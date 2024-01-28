@@ -1,6 +1,3 @@
-from random import choice
-import asyncio
-
 from aiogram import types, Router, F
 from aiogram.filters import Command, or_f
 
@@ -8,7 +5,7 @@ from database import sqlite
 
 from keyboards import main_kb, inline_builder
 
-from utils import get_project_root
+from utils import get_project_root, react_to_post
 
 from filters import IsChannel
 
@@ -105,8 +102,4 @@ async def random_material(message: types.Message):
     
 @router.channel_post(IsChannel())
 async def react(message: types.Message):
-    emojis = ["👍", "❤️", "🔥", "👏", "💯"]
-    react = types.ReactionTypeEmoji(emoji=choice(emojis))
-    await asyncio.sleep(5)
-    a = await message.react([react])
-    print(message, a)
+    await react_to_post(message=message, emoji=None)

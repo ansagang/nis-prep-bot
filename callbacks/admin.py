@@ -7,7 +7,7 @@ from database import sqlite
 
 from filters import IsAdmin, IsGroup
 
-from utils import get_project_root
+from utils import get_project_root, react_to_post
 
 import config
 
@@ -127,7 +127,8 @@ async def post_test(query: types.CallbackQuery):
         "\n"
         "#пробники #"+test[2]
     )
-    await query.bot.send_document(chat_id=config.channel, document=test[0], caption=caption)
+    mes = await query.bot.send_document(chat_id=config.channel, document=test[0], caption=caption)
+    await react_to_post(message=mes, emoji=None)
     await query.answer()
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith('post_material-')))
@@ -138,7 +139,8 @@ async def post_material(query: types.CallbackQuery):
         "\n"
         "#материал #"+material[2]
     )
-    await query.bot.send_photo(chat_id=config.channel, photo=material[0], caption=caption)
+    mes = await query.bot.send_photo(chat_id=config.channel, photo=material[0], caption=caption)
+    await react_to_post(message=mes, emoji=None)
     await query.answer()
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith('post')))
@@ -243,7 +245,8 @@ async def add_question_explanation(message: types.Message, state: FSMContext):
             "\n"
             "#вопросы #"+data['subject']
         )
-        await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
+        mes = await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
+        await react_to_post(message=mes, emoji=None)
 
 @router.message(and_f(IsAdmin(), F.content_type == 'photo', FMStips.photo))
 async def add_tips_photo(message: types.Message, state: FSMContext):
@@ -262,7 +265,8 @@ async def add_tips_content(message: types.Message, state: FSMContext):
         "\n"
         "#советы"
     )
-    await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
+    mes = await message.bot.send_photo(chat_id=config.channel ,photo=data['photo'], caption=caption)
+    await react_to_post(message=mes, emoji=None)
     await state.clear()
 
 @router.callback_query(and_f(IsAdmin(), F.data == "add"))
