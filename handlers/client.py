@@ -102,7 +102,7 @@ async def random_material(message: types.Message):
 # async def words_filter(message: types.Message):
 #     await message.bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     
-@router.channel_post(IsChannel())
+@router.message(IsChannel())
 async def react(message: types.Message):
     emojis = ["👍", "❤️", "🔥", "👏", "💯"]
     react = types.ReactionTypeEmoji(emoji=choice(emojis))
