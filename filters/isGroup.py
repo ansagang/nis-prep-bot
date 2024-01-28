@@ -1,6 +1,5 @@
-from aiogram.filters import BaseFilter
 from aiogram import types
-import config
+from aiogram.filters import BaseFilter
 
 class IsGroup(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:

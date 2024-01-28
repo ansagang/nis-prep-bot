@@ -1,8 +1,9 @@
 from typing import Any, Awaitable, Callable, Dict
+
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
+
 import config
-from aiogram import types
 
 class CheckAdmin(BaseMiddleware):
     async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: CallbackQuery | Message, data: Dict[str, Any]) -> Any:

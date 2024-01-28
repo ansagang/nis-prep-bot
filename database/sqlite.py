@@ -1,4 +1,5 @@
 import sqlite3 as sq
+
 from utils import get_project_root
 
 def sql_start():
@@ -59,3 +60,11 @@ async def sql_delete_test(data):
 async def sql_delete_material(data):
     cur.execute('DELETE FROM materials WHERE name == ?', (data, ))
     base.commit()
+
+async def sql_random_test():
+    test = cur.execute('SELECT * FROM tests ORDER BY RANDOM() LIMIT 1').fetchone()
+    return test
+
+async def sql_random_material():
+    material = cur.execute('SELECT * FROM materials ORDER BY RANDOM() LIMIT 1').fetchone()
+    return material

@@ -1,15 +1,15 @@
 from aiogram import Router, F
 from aiogram import types
 
+from database import sqlite
+
 from keyboards import inline_builder
 from keyboards import main_kb
-from aiogram.fsm.context import FSMContext
-from database import sqlite
 
 router = Router()
 
 @router.callback_query(F.data == "materials")
-async def tips(query: types.CallbackQuery):
+async def materials(query: types.CallbackQuery):
     subjects = await sqlite.sql_get_materials_subjects()
     text = []
     callback = []
@@ -20,7 +20,7 @@ async def tips(query: types.CallbackQuery):
     callback.append('menu')
     pattern = {
         "caption": (
-            "<b>Материалы</b>\n"
+            "<b>📚 Материалы</b>\n"
             "\n"
             "-Выберите предмет"
         ),
@@ -30,7 +30,7 @@ async def tips(query: types.CallbackQuery):
     await query.answer()
 
 @router.callback_query(F.data.startswith('materials_'))
-async def tips(query: types.CallbackQuery):
+async def materials(query: types.CallbackQuery):
     materials = await sqlite.sql_get_materials(query.data.split('_')[1])
     text = []
     callback = []
@@ -41,7 +41,7 @@ async def tips(query: types.CallbackQuery):
     callback.append('tests')
     pattern = {
         "caption": (
-            "<b>Материалы</b>\n"
+            "<b>📚 Материалы</b>\n"
             "\n"
         ),
         "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
@@ -50,13 +50,13 @@ async def tips(query: types.CallbackQuery):
     await query.answer()
 
 @router.callback_query(F.data.startswith('material_'))
-async def tips(query: types.CallbackQuery):
+async def material(query: types.CallbackQuery):
     material = await sqlite.sql_get_material(query.data.replace('material_', ''))
     pattern = {
         "caption": (
             "<b>"+material[1]+"</b>\n"
             "\n"
-            "-"+material[2]
+            "📚 "+material[2]
         ),
         "reply_markup": inline_builder(text='« Назад', callback_data='delete', sizes=1),
         "photo": material[0]
@@ -65,7 +65,7 @@ async def tips(query: types.CallbackQuery):
     await query.answer()
 
 @router.callback_query(F.data == "tests")
-async def tips(query: types.CallbackQuery):
+async def tests(query: types.CallbackQuery):
     subjects = await sqlite.sql_get_tests_subjects()
     text = []
     callback = []
@@ -76,7 +76,7 @@ async def tips(query: types.CallbackQuery):
     callback.append('menu')
     pattern = {
         "caption": (
-            "<b>Пробники</b>\n"
+            "<b>📄 Пробники</b>\n"
             "\n"
             "-Выберите предмет"
         ),
@@ -86,7 +86,7 @@ async def tips(query: types.CallbackQuery):
     await query.answer()
 
 @router.callback_query(F.data.startswith('tests_'))
-async def tips(query: types.CallbackQuery):
+async def tests(query: types.CallbackQuery):
     tests = await sqlite.sql_get_tests(query.data.split('_')[1])
     text = []
     callback = []
@@ -97,7 +97,7 @@ async def tips(query: types.CallbackQuery):
     callback.append('tests')
     pattern = {
         "caption": (
-            "<b>Пробники</b>\n"
+            "<b>📄 Пробники</b>\n"
             "\n"
         ),
         "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
@@ -106,13 +106,13 @@ async def tips(query: types.CallbackQuery):
     await query.answer()
 
 @router.callback_query(F.data.startswith('test_'))
-async def tips(query: types.CallbackQuery):
+async def test(query: types.CallbackQuery):
     test = await sqlite.sql_get_test(query.data.replace('test_', ''))
     pattern = {
         "caption": (
             "<b>"+test[1]+"</b>\n"
             "\n"
-            "-"+test[2]
+            "📄 "+test[2]
         ),
         "reply_markup": inline_builder(text='« Назад', callback_data='delete', sizes=1),
         "document": test[0]

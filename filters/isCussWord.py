@@ -1,8 +1,9 @@
-from aiogram.filters import BaseFilter
-from aiogram import types
-import config
-from utils import get_project_root
 import json, string
+
+from aiogram import types
+from aiogram.filters import BaseFilter
+
+from utils import get_project_root
 
 class IsCussWord(BaseFilter):
     async def __call__(self, message: types.Message) -> bool:
