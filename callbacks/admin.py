@@ -302,19 +302,19 @@ async def add_tests_file(message: types.Message, state: FSMContext):
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.name))
 async def add_tests_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
-    await message.answer('Теперь введите айди', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
-    await state.set_state(FMStests.id)
-
-@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.id))
-async def add_tests_id(message: types.Message, state: FSMContext):
-    await state.update_data(id=message.text)
     await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMStests.subject)
 
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.subject))
+async def add_tests_id(message: types.Message, state: FSMContext):
+    await state.update_data(subject=message.text)
+    await message.answer('Теперь введите id', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMStests.id)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.id))
 async def add_tests_subject(message: types.Message, state: FSMContext):
     photo = get_project_root('assets/logo.png')
-    await state.update_data(subject=message.text)
+    await state.update_data(id=message.text)
     await sqlite.sql_add_tests(state)
     await state.clear()
     await message.answer_photo(photo=types.FSInputFile(path=photo), caption='Тест был успешно добавлен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
@@ -328,19 +328,19 @@ async def add_materials_photo(message: types.Message, state: FSMContext):
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.name))
 async def add_materials_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
-    await message.answer('Теперь введите айди', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
-    await state.set_state(FMSmaterials.id)
-
-@router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.id))
-async def add_materials_id(message: types.Message, state: FSMContext):
-    await state.update_data(id=message.text)
     await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMSmaterials.subject)
-    
+
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.subject))
 async def add_materials_subject(message: types.Message, state: FSMContext):
-    photo = get_project_root('assets/logo.png')
     await state.update_data(subject=message.text)
+    await message.answer('Теперь введите id', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMSmaterials.id)
+    
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.id))
+async def add_materials_id(message: types.Message, state: FSMContext):
+    photo = get_project_root('assets/logo.png')
+    await state.update_data(id=message.text)
     await sqlite.sql_add_materials(state)
     await state.clear()
     await message.answer_photo(photo=types.FSInputFile(path=photo), caption='Материал был успешно добавлен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
