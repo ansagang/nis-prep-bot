@@ -35,8 +35,8 @@ async def materials(query: types.CallbackQuery):
     text = []
     callback = []
     for material in materials:
-        text.append(material[1])
-        callback.append('material_'+material[1])
+        text.append(material[3])
+        callback.append('material_'+material[3])
     text.append('« Назад')
     callback.append('tests')
     pattern = {
@@ -91,8 +91,8 @@ async def tests(query: types.CallbackQuery):
     text = []
     callback = []
     for test in tests:
-        text.append(test[1])
-        callback.append('test_'+test[1])
+        text.append(test[3])
+        callback.append('test_'+test[3])
     text.append('« Назад')
     callback.append('tests')
     pattern = {

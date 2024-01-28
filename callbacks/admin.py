@@ -19,11 +19,13 @@ class FMStests(StatesGroup):
     file = State()
     subject = State()
     name = State()
+    id = State()
 
 class FMSmaterials(StatesGroup):
     photo = State()
     subject = State()
     name = State()
+    id = State()
 
 class FMStips(StatesGroup):
     photo = State()
@@ -80,8 +82,8 @@ async def delete(query: types.CallbackQuery):
             "-Выберите тест для удаления"
         )
         for test in tests:
-            text.append(test[1])
-            callback.append('delete_test-'+test[1])
+            text.append(test[3])
+            callback.append('delete_test-'+test[3])
         text.append('« Назад')
         callback.append('delete_')
         pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
@@ -97,8 +99,8 @@ async def delete(query: types.CallbackQuery):
             "-Выберите материал для удаления"
         )
         for material in materials:
-            text.append(material[1])
-            callback.append('delete_material-'+material[1])
+            text.append(material[3])
+            callback.append('delete_material-'+material[3])
         text.append('« Назад')
         callback.append('delete_')
         pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
@@ -154,8 +156,8 @@ async def post(query: types.CallbackQuery, state: FSMContext):
             "<b>✔ Выложить тест</b>"
         )
         for test in tests:
-            text.append(test[1])
-            callback.append('post_test-'+test[1])
+            text.append(test[3])
+            callback.append('post_test-'+test[3])
         text.append('« Назад')
         callback.append('post')
         pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
@@ -169,8 +171,8 @@ async def post(query: types.CallbackQuery, state: FSMContext):
             "<b>✔ Выложить материал</b>"
         )
         for material in materials:
-            text.append(material[1])
-            callback.append('post_material-'+material[1])
+            text.append(material[3])
+            callback.append('post_material-'+material[3])
         text.append('« Назад')
         callback.append('post')
         pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
@@ -301,6 +303,12 @@ async def add_tests_file(message: types.Message, state: FSMContext):
 async def add_tests_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
     await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMStests.id)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.id))
+async def add_tests_id(message: types.Message, state: FSMContext):
+    await state.update_data(id=message.text)
+    await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMStests.subject)
 
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMStests.subject))
@@ -321,8 +329,14 @@ async def add_materials_photo(message: types.Message, state: FSMContext):
 async def add_materials_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
     await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
-    await state.set_state(FMSmaterials.subject)
+    await state.set_state(FMSmaterials.id)
 
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.id))
+async def add_materials_id(message: types.Message, state: FSMContext):
+    await state.update_data(id=message.text)
+    await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMSmaterials.subject)
+    
 @router.message(and_f(IsAdmin(), F.content_type == 'text', FMSmaterials.subject))
 async def add_materials_subject(message: types.Message, state: FSMContext):
     photo = get_project_root('assets/logo.png')
