@@ -38,7 +38,7 @@ async def materials(query: types.CallbackQuery):
         text.append(material[3])
         callback.append('material_'+material[3])
     text.append('« Назад')
-    callback.append('tests')
+    callback.append('materials')
     pattern = {
         "caption": (
             "<b>📚 Материалы</b>\n"
