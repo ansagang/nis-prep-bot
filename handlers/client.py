@@ -66,7 +66,7 @@ async def random_test(message: types.Message):
             "\n"
             "📄 "+test[2]
         )
-        pattern['document']: test[0]
+        pattern['document'] = test[0]
         await message.bot.send_document(**pattern)
     else:
         pattern['text'] = (
@@ -87,7 +87,7 @@ async def random_material(message: types.Message):
             "\n"
             "📚 "+material[2]
         ),
-        pattern['photo']: material[0]
+        pattern['photo'] = material[0]
         await message.bot.send_photo(**pattern)
     else:
         pattern['text'] = (
