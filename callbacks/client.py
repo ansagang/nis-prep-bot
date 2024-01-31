@@ -6,6 +6,8 @@ from database import sqlite
 from keyboards import inline_builder
 from keyboards import main_kb
 
+from utils import KeyboardPaginator
+
 router = Router()
 
 @router.callback_query(F.data == "materials")
@@ -31,20 +33,28 @@ async def materials(query: types.CallbackQuery):
 
 @router.callback_query(F.data.startswith('materials_'))
 async def materials(query: types.CallbackQuery):
-    materials = await sqlite.sql_get_materials(query.data.split('_')[1])
-    text = []
-    callback = []
+    materials = await sqlite.sql_get_materials(query.data.split(sep="_", maxsplit=1)[1])
+    buttons = []
     for material in materials:
-        text.append(material[3])
-        callback.append('material_'+material[3])
-    text.append('« Назад')
-    callback.append('materials')
+        buttons.append({'text':material[3], 'callback_data': 'material_'+material[3]})
+    additional_buttons = [
+        [
+            types.InlineKeyboardButton(text='« Назад', callback_data="materials"),
+        ],
+    ]
+    paginator = KeyboardPaginator(
+        data=buttons,
+        router=router,
+        per_page=5,
+        per_row=1,
+        additional_buttons=additional_buttons
+    )
     pattern = {
         "caption": (
             "<b>📚 Материалы</b>\n"
             "\n"
         ),
-        "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
+        "reply_markup": paginator.as_markup()
     }
     await query.message.edit_caption(**pattern)
     await query.answer()
@@ -87,20 +97,28 @@ async def tests(query: types.CallbackQuery):
 
 @router.callback_query(F.data.startswith('tests_'))
 async def tests(query: types.CallbackQuery):
-    tests = await sqlite.sql_get_tests(query.data.split('_')[1])
-    text = []
-    callback = []
+    tests = await sqlite.sql_get_tests(query.data.split(sep="_", maxsplit=1)[1])
+    buttons = []
     for test in tests:
-        text.append(test[3])
-        callback.append('test_'+test[3])
-    text.append('« Назад')
-    callback.append('tests')
+        buttons.append({'text':test[3], 'callback_data':'test_'+test[3]})
+    additional_buttons = [
+        [
+            types.InlineKeyboardButton(text='« Назад', callback_data="tests"),
+        ],
+    ]
+    paginator = KeyboardPaginator(
+        data=buttons,
+        router=router,
+        per_page=5,
+        per_row=1,
+        additional_buttons=additional_buttons
+    )
     pattern = {
         "caption": (
             "<b>📄 Пробники</b>\n"
             "\n"
         ),
-        "reply_markup": inline_builder(text=text, callback_data=callback, sizes=1)
+        "reply_markup": paginator.as_markup()
     }
     await query.message.edit_caption(**pattern)
     await query.answer()

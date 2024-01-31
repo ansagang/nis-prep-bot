@@ -25,14 +25,14 @@ async def sql_add_materials(state):
 
 async def sql_get_tests(subject):
     if subject:
-        tests = cur.execute('SELECT * FROM tests WHERE subject == ?', (subject, )).fetchall()
+        tests = cur.execute('SELECT * FROM tests WHERE subject == ? ORDER BY id ASC', (subject, )).fetchall()
     else:
         tests = cur.execute('SELECT * FROM tests').fetchall()
     return tests
 
 async def sql_get_materials(subject):
     if subject:
-        materials = cur.execute('SELECT * FROM materials WHERE subject == ?', (subject, )).fetchall()
+        materials = cur.execute('SELECT * FROM materials WHERE subject == ? ORDER BY id ASC', (subject, )).fetchall()
     else:
         materials = cur.execute('SELECT * FROM materials').fetchall()
     return materials

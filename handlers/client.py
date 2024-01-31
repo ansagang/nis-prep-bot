@@ -86,7 +86,7 @@ async def random_material(message: types.Message):
             "<b>"+material[1]+"</b>\n"
             "\n"
             "📚 "+material[2]
-        ),
+        )
         pattern['photo'] = material[0]
         await message.bot.send_photo(**pattern)
     else:

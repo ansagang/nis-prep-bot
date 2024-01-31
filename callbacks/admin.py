@@ -7,7 +7,7 @@ from database import sqlite
 
 from filters import IsAdmin, IsGroup
 
-from utils import get_project_root, react_to_post
+from utils import get_project_root, react_to_post, KeyboardPaginator
 
 import config
 
@@ -74,36 +74,53 @@ async def delete(query: types.CallbackQuery):
     pattern = {}
     if query.data == 'delete_tests':
         tests = await sqlite.sql_get_tests(None)
-        text = []
-        callback = []
+        buttons = []
         pattern['caption'] = (
             "<b>❌ Удалить тест</b>\n"
             "\n"
             "-Выберите тест для удаления"
         )
+        buttons = []
         for test in tests:
-            text.append(test[3])
-            callback.append('delete_test-'+test[3])
-        text.append('« Назад')
-        callback.append('delete_')
-        pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
+            buttons.append({'text':test[3], 'callback_data':'delete_test-'+test[3]})
+        additional_buttons = [
+            [
+                types.InlineKeyboardButton(text='« Назад', callback_data="delete_"),
+            ],
+        ]
+        paginator = KeyboardPaginator(
+            data=buttons,
+            router=router,
+            per_page=5,
+            per_row=1,
+            additional_buttons=additional_buttons
+        )
+        pattern['reply_markup'] = paginator.as_markup()
         await query.message.edit_caption(**pattern)
         await query.answer()
     if query.data == 'delete_materials':
         materials = await sqlite.sql_get_materials(None)
-        text = []
-        callback = []
         pattern['caption'] = (
             "<b>❌ Удалить материал</b>\n"
             "\n"
             "-Выберите материал для удаления"
         )
+        buttons = []
         for material in materials:
-            text.append(material[3])
-            callback.append('delete_material-'+material[3])
-        text.append('« Назад')
-        callback.append('delete_')
-        pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
+            buttons.append({'text':material[3], 'callback_data':'delete_material-'+material[3]})
+        additional_buttons = [
+            [
+                types.InlineKeyboardButton(text='« Назад', callback_data="delete_"),
+            ],
+        ]
+        paginator = KeyboardPaginator(
+            data=buttons,
+            router=router,
+            per_page=5,
+            per_row=1,
+            additional_buttons=additional_buttons
+        )
+        pattern['reply_markup'] = paginator.as_markup()
         await query.message.edit_caption(**pattern)
         await query.answer()
 
@@ -150,32 +167,48 @@ async def post(query: types.CallbackQuery, state: FSMContext):
     pattern = {}
     if query.data == 'post_tests':
         tests = await sqlite.sql_get_tests(None)
-        text = []
-        callback = []
         pattern['caption'] = (
             "<b>✔ Выложить тест</b>"
         )
+        buttons = []
         for test in tests:
-            text.append(test[3])
-            callback.append('post_test-'+test[3])
-        text.append('« Назад')
-        callback.append('post')
-        pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
+            buttons.append({'text':test[3], 'callback_data':'post_test-'+test[3]})
+        additional_buttons = [
+            [
+                types.InlineKeyboardButton(text='« Назад', callback_data="post"),
+            ],
+        ]
+        paginator = KeyboardPaginator(
+            data=buttons,
+            router=router,
+            per_page=5,
+            per_row=1,
+            additional_buttons=additional_buttons
+        )
+        pattern['reply_markup'] = paginator.as_markup()
         await query.message.edit_caption(**pattern)
         await query.answer()
     if query.data == 'post_materials':
         materials = await sqlite.sql_get_materials(None)
-        text = []
-        callback = []
         pattern['caption'] = (
             "<b>✔ Выложить материал</b>"
         )
+        buttons = []
         for material in materials:
-            text.append(material[3])
-            callback.append('post_material-'+material[3])
-        text.append('« Назад')
-        callback.append('post')
-        pattern['reply_markup'] = inline_builder(text=text, callback_data=callback, sizes=1)
+            buttons.append({'text':material[3], 'callback_data':'post_material-'+material[3]})
+        additional_buttons = [
+            [
+                types.InlineKeyboardButton(text='« Назад', callback_data="post"),
+            ],
+        ]
+        paginator = KeyboardPaginator(
+            data=buttons,
+            router=router,
+            per_page=5,
+            per_row=1,
+            additional_buttons=additional_buttons
+        )
+        pattern['reply_markup'] = paginator.as_markup()
         await query.message.edit_caption(**pattern)
         await query.answer()
     if query.data == 'post_tips':
