@@ -252,7 +252,7 @@ async def add_question_answer(message: types.Message, state: FSMContext):
     await message.answer('Теперь введите объяснение', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
     await state.set_state(FMSquestion.explanation)
 
-@router.message(or_f(IsGroup(), and_f(IsAdmin(), F.content_type == 'text', FMSquestion.explanation)))
+@router.message(or_f(IsGroup(), and_f(IsAdmin(), FMSquestion.explanation)))
 async def add_question_explanation(message: types.Message, state: FSMContext):    
     photo = get_project_root('assets/logo.png')
     global data
