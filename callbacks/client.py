@@ -6,9 +6,59 @@ from database import sqlite
 from keyboards import inline_builder
 from keyboards import main_kb
 
-from utils import KeyboardPaginator
+from utils import KeyboardPaginator, get_project_root
+
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+
+from aiogram.filters import or_f
 
 router = Router()
+
+class Testing(StatesGroup):
+    score = State()
+    number = State()
+    testing_id = State()
+
+@router.callback_query(F.data == "testing")
+async def materials(query: types.CallbackQuery):
+    ids = await sqlite.sql_get_testing_id()
+    users = sqlite.get_user(query.from_user.id)
+    results = []
+    for user in users:
+        results.append({'testing_id': user[5], 'result': user[6]})
+    buttons = []
+    for id in ids:
+        buttons.append({'text':id[0], 'callback_data': 'testing_'+id[0]})
+    additional_buttons = [
+        [
+            types.InlineKeyboardButton(text='« Назад', callback_data="menu"),
+        ],
+    ]
+    paginator = KeyboardPaginator(
+        data=buttons,
+        router=router,
+        per_page=5,
+        per_row=1,
+        additional_buttons=additional_buttons
+    )
+    stoke = ""
+    for result in results:
+        stoke += f"{result['testing_id']}: {result['result']} \n"
+    pattern = {
+        "caption": (
+            "<b>Тестирование</b>\n"
+            "\n"
+            "Результаты 🏆:"
+            "\n"
+            f"{stoke}"
+            "\n"
+            "-Выберите тестирование"
+        ),
+        "reply_markup": paginator.as_markup()
+    }
+    await query.message.edit_caption(**pattern)
+    await query.answer()
 
 @router.callback_query(F.data == "materials")
 async def materials(query: types.CallbackQuery):
@@ -148,3 +198,12 @@ async def menu(query: types.CallbackQuery, isAdmin: bool):
     kb = main_kb.inlineKb(isAdmin)
     await query.message.edit_caption(caption="", reply_markup=kb)
     await query.answer()
+
+@router.callback_query(F.data == 'cancel')
+async def cancel(query: types.CallbackQuery, state: FSMContext):
+    photo = get_project_root('assets/logo.png')
+    current_state = await state.get_state()
+    if current_state is None:
+        return
+    await state.clear()
+    await query.message.answer_photo(photo=types.FSInputFile(path=photo), caption='Отмена тестирования', reply_markup=inline_builder(text='« Меню', callback_data='menu'))

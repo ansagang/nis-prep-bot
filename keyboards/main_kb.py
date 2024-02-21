@@ -1,3 +1,5 @@
+import os
+
 from keyboards import inline_builder
 
 def inlineKb(isAdmin):
@@ -5,7 +7,21 @@ def inlineKb(isAdmin):
         return admin_kb
     else:
         return client_kb
+    
+text_client = ["📚 Материалы", "📄 Пробники"]
+callback_client = ["materials", "tests"]
+sizes_client = [2]
 
-client_kb = inline_builder(text=["📚 Материалы", "📄 Пробники"], callback_data=["materials", "tests"], sizes=2)
+text_admin = ["📚 Материалы", "📄 Пробники", "Тестирование", "✅ Добавить данные", "❌ Удалить данные", "✔ Выложить данные"]
+calback_admin = ["materials", "tests", "testing", "add", "delete_", "post"]
+sizes_admin = [2, 1, 2, 1]
 
-admin_kb = inline_builder(text=["📚 Материалы", "📄 Пробники", "✅ Добавить данные", "❌ Удалить данные", "✔ Выложить данные"], callback_data=["materials", "tests", "add", "delete_", "post"], sizes=[2, 2, 1])
+client_kb = inline_builder(text=text_client, callback_data=callback_client, sizes=sizes_client)
+
+admin_kb = inline_builder(text=text_admin, callback_data=calback_admin, sizes=sizes_admin)
+
+beta = os.getenv('BETA')
+if beta:
+    callback_client.append("testing")
+    text_client.append("Тестирование")
+    sizes_client.append(1)

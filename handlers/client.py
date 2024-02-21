@@ -103,3 +103,11 @@ async def random_material(message: types.Message):
 @router.channel_post(IsChannel())
 async def react(message: types.Message):
     await react_to_post(message=message, emoji=None)
+
+
+@router.message(F.data.startswith('/leaderboard '))
+async def leaderboard(message: types.Message):
+    testing_id = message.split(sep=" ", maxsplit=1)[1]
+    users = sqlite.get_leaderboard(testing_id)[0:3]
+    print(users)
+    # await message.answer(**pattern)

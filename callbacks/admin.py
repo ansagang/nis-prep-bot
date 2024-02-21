@@ -38,6 +38,13 @@ class FMSquestion(StatesGroup):
     title = State()
     explanation = State()
 
+class FMStesting(StatesGroup):
+    id = State()
+    photo = State()
+    subject = State()
+    answer = State()
+    number = State()
+
 @router.callback_query(and_f(IsAdmin(), F.data == "delete_"))
 async def delete(query: types.CallbackQuery):
     pattern = {
@@ -46,7 +53,7 @@ async def delete(query: types.CallbackQuery):
             "\n"
             "-Выберите данные которые вы хотите удалить"
         ),
-        "reply_markup": inline_builder(text=['Удалить тест', 'Удалить материал', '« Назад'], callback_data=['delete_tests', 'delete_materials', 'menu'])
+        "reply_markup": inline_builder(text=['Удалить тест', 'Удалить материал', 'Удалить тестирование', '« Назад'], callback_data=['delete_tests', 'delete_materials', 'delete_testing', 'menu'])
     }
     await query.message.edit_caption(**pattern)
     await query.answer()
@@ -67,6 +74,15 @@ async def delete_test(query: types.CallbackQuery):
         "<b>Тест был успешно удален</b>"
     )
     await query.message.edit_caption(caption=caption, reply_markup=inline_builder(text=['« Назад'], callback_data=['delete_tests']))
+    await query.answer()
+
+@router.callback_query(and_f(IsAdmin(), F.data.startswith('delete_testing-')))
+async def delete_test(query: types.CallbackQuery):
+    await sqlite.sql_delete_testing(query.data.split(sep='-', maxsplit=1)[1])
+    caption = (
+        "<b>Тестирование было успешно удалено</b>"
+    )
+    await query.message.edit_caption(caption=caption, reply_markup=inline_builder(text=['« Назад'], callback_data=['delete_testing']))
     await query.answer()
 
 @router.callback_query(and_f(IsAdmin(), F.data.startswith("delete")))
@@ -108,6 +124,31 @@ async def delete(query: types.CallbackQuery):
         buttons = []
         for material in materials:
             buttons.append({'text':material[3], 'callback_data':'delete_material-'+material[3]})
+        additional_buttons = [
+            [
+                types.InlineKeyboardButton(text='« Назад', callback_data="delete_"),
+            ],
+        ]
+        paginator = KeyboardPaginator(
+            data=buttons,
+            router=router,
+            per_page=5,
+            per_row=1,
+            additional_buttons=additional_buttons
+        )
+        pattern['reply_markup'] = paginator.as_markup()
+        await query.message.edit_caption(**pattern)
+        await query.answer()
+    if query.data == 'delete_testing':
+        ids = await sqlite.sql_get_testing_id()
+        pattern['caption'] = (
+            "<b>❌ Удалить тестирование</b>\n"
+            "\n"
+            "-Выберите тестирование для удаления"
+        )
+        buttons = []
+        for id in ids:
+            buttons.append({'text':id[0], 'callback_data':'delete_testing-'+id[0]})
         additional_buttons = [
             [
                 types.InlineKeyboardButton(text='« Назад', callback_data="delete_"),
@@ -312,7 +353,7 @@ async def add(query: types.CallbackQuery):
             "\n"
             "-Выберите данные которые вы хотите добавить"
         ),
-        "reply_markup": inline_builder(text=['Добавить тест', 'Добавить материал', '« Назад'], callback_data=['add_tests', 'add_materials', 'menu'])
+        "reply_markup": inline_builder(text=['Добавить тест', 'Добавить материал', 'Добавить тестирование', '« Назад'], callback_data=['add_tests', 'add_materials', 'add_testing', 'menu'])
     }
     await query.message.edit_caption(**pattern)
     await query.answer()
@@ -325,6 +366,51 @@ async def add(query: types.CallbackQuery, state: FSMContext):
     if query.data == 'add_materials':
         await query.message.answer('Загрузите фото', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
         await state.set_state(FMSmaterials.photo)
+    if query.data == 'add_testing':
+        await query.message.answer('Загрузите фото', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+        await state.set_state(FMStesting.photo)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'photo', FMStesting.photo))
+async def add_tests_file(message: types.Message, state: FSMContext):
+    await state.update_data(photo=message.photo[0].file_id)
+    await message.answer('Теперь введите ответ', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMStesting.answer)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStesting.answer))
+async def add_tests_file(message: types.Message, state: FSMContext):
+    answer = 0
+    if message.text == 'A':
+        answer = 0
+    elif message.text == 'B':
+        answer = 1
+    elif message.text == 'C':
+        answer = 2
+    elif message.text == 'D':
+        answer = 3
+    await state.update_data(answer=answer)
+    await message.answer('Теперь введите предмет', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMStesting.subject)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStesting.subject))
+async def add_tests_file(message: types.Message, state: FSMContext):
+    await state.update_data(subject=message.text)
+    await message.answer('Теперь введите номер вопроса', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMStesting.number)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStesting.number))
+async def add_tests_file(message: types.Message, state: FSMContext):
+    await state.update_data(number=message.text)
+    await message.answer('Теперь введите id', reply_markup=inline_builder(text='« Отменить', callback_data='cancel'))
+    await state.set_state(FMStesting.id)
+
+@router.message(and_f(IsAdmin(), F.content_type == 'text', FMStesting.id))
+async def add_tests_subject(message: types.Message, state: FSMContext):
+    photo = get_project_root('assets/logo.png')
+    await state.update_data(id=message.text)
+    await sqlite.sql_add_testing(state)
+    await state.clear()
+    await message.answer_photo(photo=types.FSInputFile(path=photo), caption='Тестирование было успешно добавлено', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
+
 
 @router.message(and_f(IsAdmin(), F.content_type == 'document', FMStests.file))
 async def add_tests_file(message: types.Message, state: FSMContext):
@@ -378,7 +464,7 @@ async def add_materials_id(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer_photo(photo=types.FSInputFile(path=photo), caption='Материал был успешно добавлен', reply_markup=inline_builder(text='« Меню', callback_data='menu'))
 
-@router.callback_query(F.data == 'cancel')
+@router.callback_query(and_f(IsAdmin(), F.data == 'cancel'))
 async def cancel(query: types.CallbackQuery, state: FSMContext):
     photo = get_project_root('assets/logo.png')
     current_state = await state.get_state()
