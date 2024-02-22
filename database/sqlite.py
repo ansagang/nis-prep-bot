@@ -93,7 +93,7 @@ async def sql_random_material():
 
 
 def add(uid: int, testing_id):
-    cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (uid, 0, 0, 0, 0, testing_id, "", ""))
+    cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (uid, 0, 0, 0, 0, testing_id, 0, ""))
     base.commit()
 
 
@@ -154,5 +154,5 @@ def get_user(uid: int):
     return user
 
 def get_leaderboard(testing_id):
-    users = cur.execute("SELECT * FROM users WHERE testing_id=(?) ORDER BY CAST(result AS int) DESC", (testing_id, )).fetchall()
+    users = cur.execute("SELECT * FROM users WHERE testing_id=(?) AND result!=0 ORDER BY CAST(result AS int) DESC", (testing_id, )).fetchall()
     return users
