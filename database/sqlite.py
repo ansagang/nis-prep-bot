@@ -12,6 +12,7 @@ def sql_start():
     base.execute('CREATE TABLE IF NOT EXISTS tests(file TEXT, name TEXT, subject TEXT, id TEXT PRIMARY KEY)')
     base.execute('CREATE TABLE IF NOT EXISTS materials(photo TEXT, name TEXT, subject TEXT, id TEXT PRIMARY KEY)')
     base.execute('CREATE TABLE IF NOT EXISTS testing(photo TEXT, answer TEXT, subject TEXT, number TEXT, id TEXT)')
+    # base.execute("DROP TABLE users")
     base.execute('CREATE TABLE IF NOT EXISTS users(uid INT, current_question INTEGER, questions_passed INTEGER, questions_message INTEGER, in_process INTEGER, testing_id TEXT, result TEXT, username TEXT)')
     base.commit()
 
@@ -49,7 +50,7 @@ async def sql_get_testing_id():
     return ids
 
 async def sql_get_testing(id):
-    testing = cur.execute('SELECT * FROM testing WHERE id == ? ORDER BY subject, number ASC', (id, )).fetchall()
+    testing = cur.execute('SELECT * FROM testing WHERE id == ? ORDER BY subject, CAST(number AS INT) ASC', (id, )).fetchall()
     return testing
 
 async def sql_delete_testing(data):
@@ -92,7 +93,7 @@ async def sql_random_material():
 
 
 def add(uid: int, testing_id):
-    cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (uid, 0, 0, 0, 0, testing_id, "0", ""))
+    cur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (uid, 0, 0, 0, 0, testing_id, "", ""))
     base.commit()
 
 
@@ -153,5 +154,5 @@ def get_user(uid: int):
     return user
 
 def get_leaderboard(testing_id):
-    user = cur.execute("SELECT * FROM users WHERE testing_id=(?) ORDER BY CAST(result AS int)", (testing_id, )).fetchall()
-    return user
+    users = cur.execute("SELECT * FROM users WHERE testing_id=(?) ORDER BY CAST(result AS int) DESC", (testing_id, )).fetchall()
+    return users

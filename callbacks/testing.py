@@ -19,24 +19,24 @@ router = Router()
 
 def compose_markup(question: int, testing_id):
     cd1 = {
-        "question": question,
-        "answer": 0,
-        "testing_id": testing_id
+        "q": question,
+        "a": 0,
+        "id": testing_id
     }
     cd2 = {
-        "question": question,
-        "answer": 1,
-        "testing_id": testing_id
+        "q": question,
+        "a": 1,
+        "id": testing_id
     }
     cd3 = {
-        "question": question,
-        "answer": 2,
-        "testing_id": testing_id
+        "q": question,
+        "a": 2,
+        "id": testing_id
     }
     cd4 = {
-        "question": question,
-        "answer": 3,
-        "testing_id": testing_id
+        "q": question,
+        "a": 3,
+        "id": testing_id
     }
     km = inline_builder(text=['A', 'B', 'C', 'D', 'Остановить тестирование', '« Назад'], callback_data=[dumps(cd1), dumps(cd2), dumps(cd3), dumps(cd4), 'stop_'+testing_id, 'delete'], sizes=[4, 1, 1])
     
@@ -103,13 +103,13 @@ async def quit_handler(query: types.CallbackQuery):
     await query.bot.send_photo(**pattern)
     await quit(query)
 
-@router.callback_query()
+@router.callback_query(lambda c: True)
 async def tests(query: types.CallbackQuery):
     data = loads(query.data)
-    q = data['question']
-    testing_id = data['testing_id']
+    q = data['q']
+    testing_id = data['id']
     testing = await sqlite.sql_get_testing(testing_id)
-    is_correct = int(testing[q][1]) == data['answer']
+    is_correct = int(testing[q][1]) == data['a']
     passed = sqlite.get_questions_passed(query.from_user.id, testing_id)
     msg = sqlite.get_questions_message(query.from_user.id, testing_id)
     if is_correct:

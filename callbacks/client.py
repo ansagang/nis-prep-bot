@@ -15,10 +15,77 @@ from aiogram.filters import or_f
 
 router = Router()
 
-class Testing(StatesGroup):
-    score = State()
-    number = State()
-    testing_id = State()
+@router.callback_query(F.data == "leaderboard")
+async def materials(query: types.CallbackQuery):
+    ids = await sqlite.sql_get_testing_id()
+    buttons = []
+    for id in ids:
+        buttons.append({'text':id[0], 'callback_data': 'leaderboard_'+id[0]})
+    additional_buttons = [
+        [
+            types.InlineKeyboardButton(text='« Назад', callback_data="menu"),
+        ],
+    ]
+    paginator = KeyboardPaginator(
+        data=buttons,
+        router=router,
+        per_page=5,
+        per_row=1,
+        additional_buttons=additional_buttons
+    )
+    pattern = {
+        "caption": (
+            "<b>Таблица лидеров</b>\n"
+            "\n"
+            "-Выберите тестирование"
+        ),
+        "reply_markup": paginator.as_markup()
+    }
+    await query.message.edit_caption(**pattern)
+    await query.answer()
+
+@router.callback_query(F.data.startswith('leaderboard_'))
+async def materials(query: types.CallbackQuery):
+    testing_id = query.data.split(sep="_", maxsplit=1)[1]
+    leaderboard = sqlite.get_leaderboard(testing_id)
+    def place():
+        for i in range(len(leaderboard)):
+            if leaderboard[i][0] == query.from_user.id:
+                return i+1
+    user_place = place()
+    leaderboard = leaderboard[0:3]
+    print(leaderboard)
+    places = {"first": "", "second": "", "third": "", "user_place": ""}
+    if 0 < len(leaderboard):
+        places["first"] = f"1 место - @{leaderboard[0][7]} ({leaderboard[0][6]})"
+    else:
+        places["first"] = f"1 место - Нету"
+
+    if 1 < len(leaderboard):
+        places["second"] = f"2 место - @{leaderboard[1][7]} ({leaderboard[1][6]})"
+    else:
+        places["second"] = f"2 место - Нету"
+
+    if 2 < len(leaderboard):
+        places["third"] = f"3 место - @{leaderboard[2][7]} ({leaderboard[2][6]})"
+    else:
+        places["third"] = f"3 место - Нету"
+    if user_place:
+        places['user_place'] = f"Вы на {user_place} месте ({leaderboard[user_place-1][6]})"
+    pattern = {
+        "caption": (
+            "<b>Таблица лидеров: </b>\n"
+            "\n"
+            f"{places['first']} 🥇\n"
+            f"{places['second']} 🥈\n"
+            f"{places['third']} 🥉\n"
+            "\n"
+            f"{places['user_place']}"
+        ),
+        "reply_markup": inline_builder(text='« Назад', callback_data="leaderboard")
+    }
+    await query.message.edit_caption(**pattern)
+    await query.answer()
 
 @router.callback_query(F.data == "testing")
 async def materials(query: types.CallbackQuery):
@@ -48,10 +115,6 @@ async def materials(query: types.CallbackQuery):
     pattern = {
         "caption": (
             "<b>Тестирование</b>\n"
-            "\n"
-            "Результаты 🏆:"
-            "\n"
-            f"{stoke}"
             "\n"
             "-Выберите тестирование"
         ),
