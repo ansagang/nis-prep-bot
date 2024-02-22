@@ -38,7 +38,7 @@ def compose_markup(question: int, testing_id):
         "a": 3,
         "id": testing_id
     }
-    km = inline_builder(text=['A', 'B', 'C', 'D', 'Остановить тестирование'], callback_data=[dumps(cd1), dumps(cd2), dumps(cd3), dumps(cd4), 'stop_'+testing_id], sizes=[4, 1])
+    km = inline_builder(text=['A', 'B', 'C', 'D', 'Остановить тестирование', "« Назад"], callback_data=[dumps(cd1), dumps(cd2), dumps(cd3), dumps(cd4), 'stop_'+testing_id, "cancel"], sizes=[4, 1])
     
     return km
 
