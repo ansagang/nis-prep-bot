@@ -79,8 +79,8 @@ async def quit(query):
         
         # await query.bot.send_message(query.from_user.id, "❗️Вы еще не начали тест\\.", parse_mode="MarkdownV2")
         return
-    
-    sqlite.change_user(query.from_user.id, testing_id, f"{passed}/{len(testing)}", query.from_user.username)
+    user = query.from_user.username or query.from_user.first_name or query.from_user.last_name
+    sqlite.change_user(query.from_user.id, testing_id, f"{passed}/{len(testing)}", user)
     reset(query.from_user.id, testing_id)
 
 @router.callback_query(F.data.startswith('stop_'))
@@ -116,7 +116,8 @@ async def tests(query: types.CallbackQuery):
         passed += 1
         sqlite.change_questions_passed(query.from_user.id, passed, testing_id)
     if q + 1 > len(testing) - 1:
-        sqlite.change_user(query.from_user.id, testing_id, f"{passed}/{len(testing)}", query.from_user.username)
+        user = query.from_user.username or query.from_user.first_name or query.from_user.last_name
+        sqlite.change_user(query.from_user.id, testing_id, f"{passed}/{len(testing)}", user)
         reset(query.from_user.id, testing_id)
         await query.bot.delete_message(query.from_user.id, msg)
         photo = get_project_root('assets/logo.png')

@@ -53,8 +53,8 @@ async def materials(query: types.CallbackQuery):
             if leaderboard[i][0] == query.from_user.id:
                 return i+1
     user_place = place()
-    leaderboard = leaderboard[0:3]
     print(leaderboard)
+    leaderboard = leaderboard[0:3]
     places = {"first": "", "second": "", "third": "", "user_place": ""}
     if 0 < len(leaderboard):
         places["first"] = f"1 место - @{leaderboard[0][7]} ({leaderboard[0][6]})"
